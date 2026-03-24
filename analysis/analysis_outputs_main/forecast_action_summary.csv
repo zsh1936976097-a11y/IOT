@@ -1,0 +1,2 @@
+forecast_horizon_minutes,mean_forecast_humidity,min_forecast_humidity,max_forecast_humidity,mean_forecast_ICS,min_forecast_ICS,max_forecast_ICS,earliest_monitor_or_action_time,earliest_high_discomfort_time,dominant_humidity_risk,recommended_action
+120,31.854835805841365,31.500499534277246,32.2020324572434,76.0,76.0,76.0,None,None,none,No immediate humidity-specific action required.

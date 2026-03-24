@@ -1,0 +1,2 @@
+row_count,start_time,end_time,expected_points,observed_points,duplicate_timestamps,missing_points,missingness_pct,unique_time_deltas
+1344,2026-02-15 00:00:00+00:00,2026-02-28 23:45:00+00:00,1344,1344,0,0,0.0,0 days 00:15:00

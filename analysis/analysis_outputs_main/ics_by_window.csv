@@ -1,0 +1,6 @@
+window,n,mean_ICS,median_ICS,std_ICS,time_comfortable_%,time_monitor_%,time_action_%,n_episodes
+Full,1344,79.79,80.0,15.15,73.8,13.5,2.2,3
+Stable-A,960,81.66,88.0,13.43,72.2,15.4,0.0,2
+Stable-A (Early),480,74.08,76.0,14.51,45.6,29.6,0.0,2
+Stable-A (Late),480,89.24,92.0,5.94,98.8,1.2,0.0,0
+Stable-B,288,80.65,80.0,5.45,90.6,9.4,0.0,0
