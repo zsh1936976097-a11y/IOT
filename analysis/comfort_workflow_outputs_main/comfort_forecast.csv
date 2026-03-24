@@ -1,9 +1,0 @@
-datetime,forecast_sensor_humi,sensor_temp,sensor_humi,T_score,H_score,ICS,comfort_level,discomfort_driver,humidity_risk_type,forecast_type,assumption_temperature,assumption_exogenous
-2026-03-01 00:00:00+00:00,31.500499534277246,24.9967,31.500499534277246,100.0,60.0,76.0,Monitor,humidity-led,none,conditional_2h_scenario,fixed_at_last_observation,frozen_at_last_observation
-2026-03-01 00:15:00+00:00,31.5915989007868,24.9967,31.5915989007868,100.0,60.0,76.0,Monitor,humidity-led,none,conditional_2h_scenario,fixed_at_last_observation,frozen_at_last_observation
-2026-03-01 00:30:00+00:00,31.698965435671095,24.9967,31.698965435671095,100.0,60.0,76.0,Monitor,humidity-led,none,conditional_2h_scenario,fixed_at_last_observation,frozen_at_last_observation
-2026-03-01 00:45:00+00:00,31.808542212770657,24.9967,31.808542212770657,100.0,60.0,76.0,Monitor,humidity-led,none,conditional_2h_scenario,fixed_at_last_observation,frozen_at_last_observation
-2026-03-01 01:00:00+00:00,31.914017377048808,24.9967,31.914017377048808,100.0,60.0,76.0,Monitor,humidity-led,none,conditional_2h_scenario,fixed_at_last_observation,frozen_at_last_observation
-2026-03-01 01:15:00+00:00,32.01380683369061,24.9967,32.01380683369061,100.0,60.0,76.0,Monitor,humidity-led,none,conditional_2h_scenario,fixed_at_last_observation,frozen_at_last_observation
-2026-03-01 01:30:00+00:00,32.10922369524231,24.9967,32.10922369524231,100.0,60.0,76.0,Monitor,humidity-led,none,conditional_2h_scenario,fixed_at_last_observation,frozen_at_last_observation
-2026-03-01 01:45:00+00:00,32.2020324572434,24.9967,32.2020324572434,100.0,60.0,76.0,Monitor,humidity-led,none,conditional_2h_scenario,fixed_at_last_observation,frozen_at_last_observation

@@ -1,9 +1,0 @@
-step,action
-Standardise names,Map raw headers to canonical names
-Parse datetime,Ensure UTC timestamps
-Convert numeric,Enable analysis and modelling
-Drop invalid datetime,Conservative: only drop rows with unparseable datetime
-Retain full window,Do not discard early volatility without sensor-failure evidence
-Derived features,"temp_gap, humi_gap, step_in_day, dayofweek"
-Exponential smoothing,EMA (alpha=0.3) for noise-reduced baseline without look-ahead bias
-Rolling statistics,2-hour (8-step) and 24-hour (96-step) rolling mean/std/IQR
