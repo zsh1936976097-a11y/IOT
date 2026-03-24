@@ -1,0 +1,6 @@
+model,n_features,test_mae,test_rmse,test_r2,test_mape_%,cv_rmse
+Baseline: Persistence,1,0.08,0.13,0.997,0.22,—
+Baseline: AR-only,3,0.061,0.095,0.999,0.17,0.4634 ± 0.1953
+Model 3: ARX,9,0.117,0.14,0.997,0.31,0.4686 ± 0.1828
+Model 4: Extended (Ridge),15,0.152,0.181,0.995,0.41,0.5258 ± 0.2117
+Model 5: Window-augmented,27,0.15,0.198,0.994,0.41,0.5404 ± 0.2214

@@ -1,0 +1,26 @@
+window,model,n,test_mae,test_rmse,test_r2,test_mape
+Full,Baseline: Persistence,1344,0.08,0.13,0.997,0.22
+Full,Baseline: AR-only,1344,0.061,0.095,0.999,0.17
+Full,Model 3: ARX,1344,0.117,0.14,0.997,0.31
+Full,Model 4: Extended (Ridge),1344,0.152,0.181,0.995,0.41
+Full,Model 5: Window-augmented,1344,0.15,0.198,0.994,0.41
+Stable-A,Baseline: Persistence,960,0.287,0.682,0.925,0.65
+Stable-A,Baseline: AR-only,960,0.218,0.585,0.945,0.48
+Stable-A,Model 3: ARX,960,0.244,0.577,0.947,0.55
+Stable-A,Model 4: Extended (Ridge),960,0.259,0.574,0.947,0.59
+Stable-A,Model 5: Window-augmented,960,0.243,0.57,0.948,0.55
+Stable-A (Early),Baseline: Persistence,480,0.255,0.41,0.974,0.68
+Stable-A (Early),Baseline: AR-only,480,0.169,0.272,0.989,0.45
+Stable-A (Early),Model 3: ARX,480,0.181,0.289,0.987,0.49
+Stable-A (Early),Model 4: Extended (Ridge),480,0.299,0.411,0.974,0.8
+Stable-A (Early),Model 5: Window-augmented,480,0.254,0.375,0.978,0.68
+Stable-A (Late),Baseline: Persistence,480,0.191,0.317,0.984,0.43
+Stable-A (Late),Baseline: AR-only,480,0.203,0.448,0.967,0.46
+Stable-A (Late),Model 3: ARX,480,0.211,0.447,0.967,0.47
+Stable-A (Late),Model 4: Extended (Ridge),480,0.205,0.371,0.978,0.47
+Stable-A (Late),Model 5: Window-augmented,480,0.227,0.358,0.979,0.53
+Stable-B,Baseline: Persistence,288,0.181,0.249,0.991,0.54
+Stable-B,Baseline: AR-only,288,0.103,0.147,0.997,0.3
+Stable-B,Model 3: ARX,288,0.098,0.138,0.997,0.29
+Stable-B,Model 4: Extended (Ridge),288,0.215,0.266,0.99,0.64
+Stable-B,Model 5: Window-augmented,288,0.27,0.326,0.985,0.82
