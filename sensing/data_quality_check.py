@@ -2,11 +2,39 @@ import argparse
 from pathlib import Path
 import pandas as pd
 
+
+def resolve_input_path(filename="merged_data.csv"):
+    candidates = [
+        Path(filename),
+        Path.cwd() / filename,
+        Path("/mnt/data") / filename,
+    ]
+    for p in candidates:
+        if p.exists():
+            return p.resolve()
+
+    for root in [Path.cwd(), Path("/mnt/data")]:
+        try:
+            hits = list(root.rglob(filename))
+            if hits:
+                return hits[0].resolve()
+        except Exception:
+            pass
+
+    raise FileNotFoundError(
+        f"Could not locate {filename}. Place it next to the script/notebook or update resolve_input_path()."
+    )
+
+
 # ======================================================
-# Local default paths for coursework workflow
+# Coursework workflow paths, aligned with iot_data_analysis.ipynb
 # ======================================================
-DEFAULT_INPUT_PATH = "/Users/apple/Downloads/IC/Spring/4.Iot/IOT_final project/4.data/1.IOT_Data/merged_15min.csv"
-DEFAULT_OUTPUT_PATH = "/Users/apple/Downloads/IC/Spring/4.Iot/IOT_final project/4.data/1.IOT_Data/data_quality_report.csv"
+DEFAULT_INPUT_PATH = resolve_input_path("merged_data.csv")
+BASE_DIR = DEFAULT_INPUT_PATH.parent
+DEFAULT_OUTPUT_DIR = BASE_DIR / "comfort_workflow_outputs_14d_main"
+DEFAULT_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+DEFAULT_OUTPUT_PATH = DEFAULT_OUTPUT_DIR / "data_quality_report.csv"
 DEFAULT_FREQ = "15min"
 
 
@@ -65,13 +93,11 @@ def run_quality_checks(df: pd.DataFrame, expected_freq: str = "15min") -> dict:
         metrics["missing_points_vs_full_range"] = None
         metrics["missingness_pct"] = None
 
-    # Missingness per column
     col_missing = {}
     for col in df.columns:
         col_missing[col] = int(df[col].isna().sum())
     metrics["missing_by_column"] = col_missing
 
-    # Numeric summary
     numeric_cols = df.select_dtypes(include="number").columns.tolist()
     numeric_summary = {}
     for col in numeric_cols:
@@ -125,28 +151,29 @@ def save_report(metrics: dict, out_path: Path):
 
 def main():
     parser = argparse.ArgumentParser(description="Run data quality checks for IoT time-series data.")
-    parser.add_argument("--input", required=True, help="Input merged CSV/Excel file")
-    parser.add_argument("--freq", default="15min", help="Expected frequency, default=15min")
-    parser.add_argument("--output", required=False, help="Optional path to save quality report as CSV")
+    parser.add_argument("--input", default=str(DEFAULT_INPUT_PATH), help="Input merged CSV/Excel file")
+    parser.add_argument("--freq", default=DEFAULT_FREQ, help="Expected frequency, default=15min")
+    parser.add_argument(
+        "--output",
+        default=str(DEFAULT_OUTPUT_PATH),
+        help="Path to save quality report as CSV"
+    )
     args = parser.parse_args()
 
-    df = load_data(Path(args.input))
+    input_path = Path(args.input)
+    output_path = Path(args.output)
+
+    print(f"INPUT_PATH = {input_path}")
+    print(f"OUTPUT_PATH = {output_path}")
+    print(f"FREQUENCY = {args.freq}")
+
+    df = load_data(input_path)
     metrics = run_quality_checks(df, expected_freq=args.freq)
     print_report(metrics)
 
-    if args.output:
-        save_report(metrics, Path(args.output))
-        print(f"\nSaved report to {args.output}")
+    save_report(metrics, output_path)
+    print(f"\nSaved report to {output_path}")
 
 
 if __name__ == "__main__":
-    import sys
-
-    sys.argv = [
-        "data_quality_check.py",
-        "--input", DEFAULT_INPUT_PATH,
-        "--freq", DEFAULT_FREQ,
-        "--output", DEFAULT_OUTPUT_PATH
-    ]
-
     main()
