@@ -3,11 +3,36 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
 
+
+def resolve_input_path(filename="merged_data.csv"):
+    candidates = [
+        Path(filename),
+        Path.cwd() / filename,
+        Path("/mnt/data") / filename,
+    ]
+    for p in candidates:
+        if p.exists():
+            return p.resolve()
+
+    for root in [Path.cwd(), Path("/mnt/data")]:
+        try:
+            hits = list(root.rglob(filename))
+            if hits:
+                return hits[0].resolve()
+        except Exception:
+            pass
+
+    raise FileNotFoundError(
+        f"Could not locate {filename}. Place it next to the script/notebook or update resolve_input_path()."
+    )
+
+
 # ======================================================
-# Local default paths for coursework workflow
+# Coursework workflow paths, aligned with iot_data_analysis.ipynb
 # ======================================================
-INPUT_PATH = Path("/Users/apple/Downloads/IC/Spring/4.Iot/IOT_final project/4.data/1.IOT_Data/merged_15min.csv")
-OUTPUT_DIR = Path("/Users/apple/Downloads/IC/Spring/4.Iot/IOT_final project/4.data/1.IOT_Data/basic_characteristics")
+INPUT_PATH = resolve_input_path("merged_data.csv")
+BASE_DIR = INPUT_PATH.parent
+OUTPUT_DIR = BASE_DIR / "comfort_workflow_outputs_14d_main"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 SUMMARY_CSV = OUTPUT_DIR / "basic_characteristics_summary.csv"
@@ -53,7 +78,12 @@ def clean_column_names(df: pd.DataFrame) -> pd.DataFrame:
         elif c.startswith("ext_wind"):
             rename_map[col] = "ext_wind"
         else:
-            rename_map[col] = c.replace(" ", "_").replace("(", "").replace(")", "").replace("-", "_")
+            rename_map[col] = (
+                c.replace(" ", "_")
+                .replace("(", "")
+                .replace(")", "")
+                .replace("-", "_")
+            )
 
     df = df.rename(columns=rename_map)
     return df
@@ -162,7 +192,7 @@ def plot_daily_profile(df: pd.DataFrame, out_path: Path):
 
     ax1.plot(profile.index, profile["sensor_temp"], label="Avg Indoor Temp")
     ax1.set_ylabel("Temperature (°C)")
-    ax1.set_xlabel("15-minute step in day (0–95)")
+    ax1.set_xlabel("15-minute step in day (0-95)")
 
     ax2 = ax1.twinx()
     ax2.plot(profile.index, profile["sensor_humi"], linestyle="--", label="Avg Indoor RH")
@@ -212,6 +242,9 @@ def plot_rolling_stats(df: pd.DataFrame, out_path: Path, window=8):
 
 def main():
     print("Loading merged dataset...")
+    print(f"INPUT_PATH = {INPUT_PATH}")
+    print(f"OUTPUT_DIR = {OUTPUT_DIR}")
+
     df = load_data(INPUT_PATH)
     df = add_helper_fields(df)
 
