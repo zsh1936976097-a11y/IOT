@@ -4,16 +4,19 @@ import pandas as pd
 import requests
 
 # ======================================================
-# Local default paths for coursework workflow
+# Coursework workflow paths
 # ======================================================
-DEFAULT_EXCEL_INPUT = "/Users/apple/Downloads/IC/Spring/4.Iot/IOT_final project/4.data/1.IOT_Data/open-meteo-51.51N0.22W8m.xlsx"
-DEFAULT_OUTPUT_CSV = "/Users/apple/Downloads/IC/Spring/4.Iot/IOT_final project/4.data/1.IOT_Data/openmeteo_standardised.csv"
+BASE_DIR = Path(r"C:\Repos\test")
+BASE_DIR.mkdir(parents=True, exist_ok=True)
 
-# White City, London (example coordinates close to project location)
+DEFAULT_EXCEL_INPUT = BASE_DIR / "open-meteo-51.51N0.22W8m.xlsx"
+DEFAULT_OUTPUT_CSV = BASE_DIR / "openmeteo_standardised.csv"
+
+# White City, London
 DEFAULT_LAT = 51.507
 DEFAULT_LON = -0.221
-DEFAULT_START_DATE = "2026-02-14"
-DEFAULT_END_DATE = "2026-03-01"
+DEFAULT_START_DATE = "2026-02-15"
+DEFAULT_END_DATE = "2026-02-28"
 DEFAULT_TIMEZONE = "UTC"
 
 
@@ -24,6 +27,9 @@ def load_from_excel(input_path: Path, output_path: Path | None = None) -> pd.Dat
     This is the primary mode used in the coursework workflow, because the
     project dataset was exported manually from Open-Meteo and stored locally.
     """
+    if not input_path.exists():
+        raise FileNotFoundError(f"Excel input not found: {input_path}")
+
     df = pd.read_excel(input_path)
 
     possible_dt_cols = [c for c in df.columns if "time" in c.lower() or "date" in c.lower()]
@@ -145,51 +151,68 @@ def main():
     parser = argparse.ArgumentParser(
         description="Load or fetch Open-Meteo 15-minute weather data."
     )
-    subparsers = parser.add_subparsers(dest="mode", required=True)
+    subparsers = parser.add_subparsers(dest="mode")
 
     excel_parser = subparsers.add_parser("excel", help="Load already-downloaded Open-Meteo Excel file")
-    excel_parser.add_argument("--input", required=True, help="Path to downloaded Open-Meteo Excel")
-    excel_parser.add_argument("--output", required=False, help="Path to save standardised CSV")
+    excel_parser.add_argument(
+        "--input",
+        default=str(DEFAULT_EXCEL_INPUT),
+        help="Path to downloaded Open-Meteo Excel"
+    )
+    excel_parser.add_argument(
+        "--output",
+        default=str(DEFAULT_OUTPUT_CSV),
+        help="Path to save standardised CSV"
+    )
 
     api_parser = subparsers.add_parser("api", help="Fetch Open-Meteo data via API")
-    api_parser.add_argument("--lat", type=float, required=True)
-    api_parser.add_argument("--lon", type=float, required=True)
-    api_parser.add_argument("--start-date", required=True)
-    api_parser.add_argument("--end-date", required=True)
-    api_parser.add_argument("--timezone", default="UTC")
-    api_parser.add_argument("--output", required=False, help="Path to save fetched CSV")
+    api_parser.add_argument("--lat", type=float, default=DEFAULT_LAT)
+    api_parser.add_argument("--lon", type=float, default=DEFAULT_LON)
+    api_parser.add_argument("--start-date", default=DEFAULT_START_DATE)
+    api_parser.add_argument("--end-date", default=DEFAULT_END_DATE)
+    api_parser.add_argument("--timezone", default=DEFAULT_TIMEZONE)
+    api_parser.add_argument(
+        "--output",
+        default=str(DEFAULT_OUTPUT_CSV),
+        help="Path to save fetched CSV"
+    )
 
     args = parser.parse_args()
 
-    if args.mode == "excel":
+    # Default coursework behaviour: use the already-downloaded Excel file
+    if args.mode is None or args.mode == "excel":
+        input_path = Path(getattr(args, "input", DEFAULT_EXCEL_INPUT))
+        output_path = Path(getattr(args, "output", DEFAULT_OUTPUT_CSV))
+
+        print("MODE        = excel")
+        print(f"INPUT_PATH  = {input_path}")
+        print(f"OUTPUT_PATH = {output_path}")
+
         df = load_from_excel(
-            input_path=Path(args.input),
-            output_path=Path(args.output) if args.output else None
+            input_path=input_path,
+            output_path=output_path
         )
         print_summary(df, "EXCEL WEATHER DATA")
 
     elif args.mode == "api":
+        output_path = Path(args.output)
+
+        print("MODE        = api")
+        print(f"LAT/LON     = {args.lat}, {args.lon}")
+        print(f"DATE RANGE  = {args.start_date} to {args.end_date}")
+        print(f"TIMEZONE    = {args.timezone}")
+        print(f"OUTPUT_PATH = {output_path}")
+
         df = fetch_from_api(
             latitude=args.lat,
             longitude=args.lon,
             start_date=args.start_date,
             end_date=args.end_date,
             timezone=args.timezone,
-            output_path=Path(args.output) if args.output else None
+            output_path=output_path
         )
         print_summary(df, "API WEATHER DATA")
 
 
 if __name__ == "__main__":
-    import sys
-
-    # Coursework process version:
-    # default to the already-downloaded Excel file used in the project
-    sys.argv = [
-        "fetch_openmeteo.py",
-        "excel",
-        "--input", DEFAULT_EXCEL_INPUT,
-        "--output", DEFAULT_OUTPUT_CSV
-    ]
-
     main()
