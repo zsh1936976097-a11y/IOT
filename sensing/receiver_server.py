@@ -6,10 +6,13 @@ import threading
 
 app = Flask(__name__)
 
-DATA_DIR = Path("data")
-DATA_DIR.mkdir(exist_ok=True)
+# ======================================================
+# Coursework workflow paths
+# ======================================================
+BASE_DIR = Path(r"C:\Repos\test")
+BASE_DIR.mkdir(parents=True, exist_ok=True)
 
-OUT_FILE = DATA_DIR / "received_sensor_data.csv"
+OUT_FILE = BASE_DIR / "received_sensor_data.csv"
 LOCK = threading.Lock()
 
 REQUIRED_FIELDS = {"record_id", "timestamp", "temp_c", "humidity_pct"}
@@ -70,9 +73,18 @@ def ingest():
 
         df_all.to_csv(OUT_FILE, index=False)
 
-    return jsonify({"status": "ok", "saved_record_id": row["record_id"]}), 200
+    return jsonify({
+        "status": "ok",
+        "saved_record_id": row["record_id"],
+        "output_file": str(OUT_FILE)
+    }), 200
 
 
 if __name__ == "__main__":
     ensure_csv_exists()
+    print("=" * 60)
+    print("RECEIVER SERVER STARTED")
+    print("=" * 60)
+    print(f"Output file: {OUT_FILE}")
+    print("Listening on: http://0.0.0.0:5000")
     app.run(host="0.0.0.0", port=5000, debug=False)
