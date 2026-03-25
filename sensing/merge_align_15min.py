@@ -2,6 +2,18 @@ import argparse
 from pathlib import Path
 import pandas as pd
 
+# ======================================================
+# Coursework workflow paths
+# ======================================================
+BASE_DIR = Path(r"C:\Repos\test")
+BASE_DIR.mkdir(parents=True, exist_ok=True)
+
+# Update this filename if your raw indoor sensor file uses a different name
+DEFAULT_SENSOR_PATH = BASE_DIR / "IOT_0311.xlsx"
+DEFAULT_WEATHER_PATH = BASE_DIR / "openmeteo_standardised.csv"
+DEFAULT_OUTPUT_PATH = BASE_DIR / "merged_data.csv"
+DEFAULT_SENSOR_15_OUTPUT_PATH = BASE_DIR / "sensor_15min_avg.csv"
+
 
 def standardise_sensor_columns(df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -97,18 +109,26 @@ def standardise_weather_columns(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def load_sensor_data(sensor_path: Path) -> pd.DataFrame:
+    if not sensor_path.exists():
+        raise FileNotFoundError(f"Sensor input not found: {sensor_path}")
+
     if sensor_path.suffix.lower() in [".xlsx", ".xls"]:
         df = pd.read_excel(sensor_path)
     else:
         df = pd.read_csv(sensor_path)
+
     return standardise_sensor_columns(df)
 
 
 def load_weather_data(weather_path: Path) -> pd.DataFrame:
+    if not weather_path.exists():
+        raise FileNotFoundError(f"Weather input not found: {weather_path}")
+
     if weather_path.suffix.lower() in [".xlsx", ".xls"]:
         df = pd.read_excel(weather_path)
     else:
         df = pd.read_csv(weather_path)
+
     return standardise_weather_columns(df)
 
 
@@ -152,7 +172,11 @@ def aggregate_sensor_to_15min(sensor_df: pd.DataFrame) -> pd.DataFrame:
     return grouped
 
 
-def merge_sensor_weather(sensor_15: pd.DataFrame, weather_df: pd.DataFrame, how: str = "outer") -> pd.DataFrame:
+def merge_sensor_weather(
+    sensor_15: pd.DataFrame,
+    weather_df: pd.DataFrame,
+    how: str = "outer"
+) -> pd.DataFrame:
     merged = pd.merge(sensor_15, weather_df, on="datetime", how=how, indicator=True)
     merged = merged.sort_values("datetime").reset_index(drop=True)
 
@@ -172,33 +196,54 @@ def main():
     parser = argparse.ArgumentParser(
         description="Aggregate 5-minute sensor data to 15-minute intervals and merge with weather data."
     )
-    parser.add_argument("--sensor", required=True, help="Path to raw sensor Excel/CSV")
-    parser.add_argument("--weather", required=True, help="Path to weather Excel/CSV")
+    parser.add_argument(
+        "--sensor",
+        default=str(DEFAULT_SENSOR_PATH),
+        help="Path to raw sensor Excel/CSV"
+    )
+    parser.add_argument(
+        "--weather",
+        default=str(DEFAULT_WEATHER_PATH),
+        help="Path to weather Excel/CSV"
+    )
     parser.add_argument(
         "--output",
-        default="merged_data.csv",
-        help="Output merged CSV path (default=merged_data.csv)",
+        default=str(DEFAULT_OUTPUT_PATH),
+        help="Output merged CSV path"
     )
     parser.add_argument(
         "--sensor-15-output",
-        required=False,
-        help="Optional path to save aggregated 15-minute sensor data",
+        default=str(DEFAULT_SENSOR_15_OUTPUT_PATH),
+        help="Optional path to save aggregated 15-minute sensor data"
     )
     parser.add_argument(
         "--merge-how",
         default="outer",
         choices=["inner", "outer", "left", "right"],
-        help="Merge mode for aligning sensor and weather data (default=outer)",
+        help="Merge mode for aligning sensor and weather data"
     )
     parser.add_argument(
         "--drop-merge-indicator",
         action="store_true",
-        help="Drop the _merge indicator column before saving",
+        help="Drop the _merge indicator column before saving"
     )
     args = parser.parse_args()
 
-    sensor_df = load_sensor_data(Path(args.sensor))
-    weather_df = load_weather_data(Path(args.weather))
+    sensor_path = Path(args.sensor)
+    weather_path = Path(args.weather)
+    output_path = Path(args.output)
+    sensor_15_output_path = Path(args.sensor_15_output) if args.sensor_15_output else None
+
+    print("COURSEWORK MERGE WORKFLOW")
+    print("=" * 60)
+    print(f"SENSOR INPUT        = {sensor_path}")
+    print(f"WEATHER INPUT       = {weather_path}")
+    print(f"MERGED OUTPUT       = {output_path}")
+    print(f"SENSOR 15MIN OUTPUT = {sensor_15_output_path}")
+    print(f"MERGE MODE          = {args.merge_how}")
+
+    sensor_df = load_sensor_data(sensor_path)
+    weather_df = load_weather_data(weather_path)
 
     check_sensor_interval(sensor_df)
 
@@ -217,14 +262,12 @@ def main():
     if args.drop_merge_indicator:
         merged = merged.drop(columns=["_merge"])
 
-    output_path = Path(args.output)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     merged.to_csv(output_path, index=False)
 
-    if args.sensor_15_output:
-        sensor_15_path = Path(args.sensor_15_output)
-        sensor_15_path.parent.mkdir(parents=True, exist_ok=True)
-        sensor_15.to_csv(sensor_15_path, index=False)
+    if sensor_15_output_path:
+        sensor_15_output_path.parent.mkdir(parents=True, exist_ok=True)
+        sensor_15.to_csv(sensor_15_output_path, index=False)
 
     print("\nMerge summary:")
     print(f"  Raw sensor rows        : {len(sensor_df)}")
@@ -232,6 +275,8 @@ def main():
     print(f"  Weather rows           : {len(weather_df)}")
     print(f"  Merged rows            : {len(merged)}")
     print(f"Saved merged dataset to  : {output_path}")
+    if sensor_15_output_path:
+        print(f"Saved 15-min sensor data : {sensor_15_output_path}")
 
 
 if __name__ == "__main__":
