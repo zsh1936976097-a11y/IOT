@@ -1,10 +1,11 @@
 # Indoor Comfort Monitor (ELEC70126 IoT Coursework)
 
-This repository contains the code, data, analysis notebook, and UI prototype for my ELEC70126 Internet of Things and Applications coursework at Imperial College London.
+This repository contains the code, data, analysis notebook, and UI prototype for my **ELEC70126 Internet of Things and Applications** coursework at **Imperial College London**.
 
 The project develops an end-to-end **Indoor Comfort Monitor** for a student room in White City, London. It combines:
 
 - a custom indoor sensing node based on **Heltec LoRa32 (ESP32-S3) + SHT31**
+- local data logging and upload via HTTP
 - a local **Flask receiver** for sensor data ingestion
 - **Open-Meteo** outdoor weather data
 - a 15-minute aligned merged dataset for time-series analysis
